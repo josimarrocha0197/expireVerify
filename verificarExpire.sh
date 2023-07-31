@@ -18,14 +18,15 @@ fi
 for peer in "${pjsipRegistrations[@]}"
 do
 	extension=$(echo -e ${peer} | awk '{ print $2 }')
-	expireValue=$(echo -e ${peer} | awk -F "exp." '{ print $2 }' | awk -F "s)" '{ print $1 }')
+	expireValue=$(echo -e ${peer} | awk '{ print $5 }' | awk -F 's' '{ print $1 }')
 	if [[ ${expireValue} -gt 40 ]]
 	then
-		printf "$(date) - ATENÇÃO: A extensao ${extension} esta com valor de expire acima do esperado (40)\n" >> ${logFile}
+		printf "$(date) - ATENCAO: A extensao ${extension} esta com valor de expire acima do esperado (40)\n" >> ${logFile}
 		printf "$(date) - Executando comando: docker exec -it astproxy asterisk -rx 'pjsip send unregister ${extension}'\n" >> ${logFile}
-		docker exec astproxy asterisk -rx "pjsip send unregister '${extension}'"
-		printf "$(date) - Executando comando: docker exec -it astproxy asterisk -rx 'pjsip send register ${extension}'\n" >> ${logFile}
-		docker exec astproxy asterisk -rx "pjsip send register '${extension}'"
+		docker exec astproxy asterisk -rx "pjsip send unregister ${extension}"
+		sleep 2
+		printf "$(date) - Executando comando: docker exec -it astproxy asterisk -rx 'pjsip send register ${extension}'\n\n" >> ${logFile}
+		docker exec astproxy asterisk -rx "pjsip send register ${extension}"
 	else
 		printf "$(date) - A extensao ${extension} NAO esta com o valor de expire acima do esperado (40)\n" >> ${logFile}
 		printf "$(date) - Valor: ${expireValue}\n\n" >> ${logFile}
