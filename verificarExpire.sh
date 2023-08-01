@@ -23,10 +23,10 @@ do
 	then
 		printf "$(date) - ATENCAO: A extensao ${extension} esta com valor de expire acima do esperado (40)\n" >> ${logFile}
 		printf "$(date) - Executando comando: docker exec -it astproxy asterisk -rx 'pjsip send unregister ${extension}'\n" >> ${logFile}
-		docker exec astproxy asterisk -rx "pjsip send unregister ${extension}"
+		docker exec astproxy asterisk -rx "pjsip send unregister ${extension}" > /dev/null
 		sleep 2
 		printf "$(date) - Executando comando: docker exec -it astproxy asterisk -rx 'pjsip send register ${extension}'\n\n" >> ${logFile}
-		docker exec astproxy asterisk -rx "pjsip send register ${extension}"
+		docker exec astproxy asterisk -rx "pjsip send register ${extension}" > /dev/null
 	else
 		printf "$(date) - A extensao ${extension} NAO esta com o valor de expire acima do esperado (40)\n" >> ${logFile}
 		printf "$(date) - Valor: ${expireValue}\n\n" >> ${logFile}
