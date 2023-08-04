@@ -2,6 +2,15 @@
 
 logFile=/root/scripts/pjsip-expire.log
 
+function checkLogSize(){
+	logSize=$(du -hsm ${logFile})
+	if [ ${logSize} -gt 50 ]
+	then
+		echo "" > ${logFile}
+		printf "$(date) - Log resetado por exceder o tamanho maximo (50MB)\n\n" >> ${logFile}
+	fi	
+}
+
 mapfile -t pjsipRegistrations < <(docker exec astproxy asterisk -rx 'pjsip show registrations' | grep exp)
 
 printf "$(date) - Quantidade de extensoes: ${#pjsipRegistrations[@]}\n" >> ${logFile}
@@ -22,6 +31,7 @@ do
 	if [[ ${expireValue} -gt 40 ]]
 	then
 		printf "$(date) - ATENCAO: A extensao ${extension} esta com valor de expire acima do esperado (40)\n" >> ${logFile}
+		printf "$(date) - Valor: ${expireValue}\n" >> ${logFile}
 		printf "$(date) - Executando comando: docker exec -it astproxy asterisk -rx 'pjsip send unregister ${extension}'\n" >> ${logFile}
 		docker exec astproxy asterisk -rx "pjsip send unregister ${extension}" > /dev/null
 		sleep 2
